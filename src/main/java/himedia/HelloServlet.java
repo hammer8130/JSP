@@ -3,15 +3,33 @@ package himedia;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import java.util.Enumeration;
+import java.util.logging.Logger;
+
+import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 public class HelloServlet extends HttpServlet {
+	private static final Logger logger = Logger.getLogger("HelloServlet");
+	
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		logger.info("LifeCycle : init");
 
+		super.init(config);
+	}
+	
+	@Override
+	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		logger.info("LifeCycle : service");
+		super.service(req, resp);
+	}
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		logger.info("LifeCycle : doGet");
 //		Tomcat으로부터 요청 객체를 받아 출력한다.
 		resp.setContentType("text/html; charset=UTF-8");
 		
@@ -27,7 +45,38 @@ public class HelloServlet extends HttpServlet {
 		
 		out.println("<h1>Hello Servlet</h1>");
 		out.println("<p>안녕하세요,"+name+"님</p>");
-		
 	}
+
+	@Override
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		logger.info("LifeCycle : doPost");
+//		클라이언트의 form으로부터 전달 받은 데이터를 목록 출력
+		resp.setContentType("text/html;charset=UTF-8");
+		
+//		응답 객체로부터 writer를 얻어온다.
+		PrintWriter out = resp.getWriter();
+		out.println("<h1>폼 데이터 처리</h1>");
+		
+		out.println("<p>폼으로부터 전송된 데이터</p>");
+		
+//		폼으로부터 전송된 파라미터명 확인
+//		
+		Enumeration<String> params = req.getParameterNames();
+		out.println("<ul>");
+		while(params.hasMoreElements()) {
+			String pName = params.nextElement();
+			out.printf("<li>%s=%s</li>%n",pName,req.getParameter(pName));
+		}
+		out.println("<ul>");
+	}
+
+
+	@Override
+	public void destroy() {
+		logger.info("LifeCycle : destory");
+		super.destroy();
+	}
+	
+	
 
 }
